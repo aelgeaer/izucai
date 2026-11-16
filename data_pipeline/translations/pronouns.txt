@@ -1,0 +1,112 @@
+# Kamus kurasi Rusia -> Indonesia: PRONOMINA, DETERMINER & NUMERALIA
+
+# --- Pronomina persona ---
+я = saya, aku
+ты = kamu, engkau
+он = dia (laki-laki)
+она = dia (perempuan)
+оно = ia, itu (netral)
+мы = kami, kita
+вы = Anda, kalian
+они = mereka
+себя = diri sendiri
+
+# --- Posesif ---
+мой = milik saya, -ku
+твой = milik kamu, -mu
+свой = milik sendiri
+наш = milik kami, milik kita
+ваш = milik Anda, milik kalian
+
+# --- Penunjuk & penentu ---
+этот = ini
+тот = itu
+такой = seperti itu, begitu, semacam itu
+таков = demikian, begitulah
+сей = ini (arkais)
+весь = semua, seluruh
+сам = sendiri
+самый = paling, yang ter-
+каждый = setiap, tiap
+любой = apa saja, siapa saja, mana pun
+всякий = segala, setiap, apa pun
+иной = lain, berbeda
+другой = lain, yang lain
+многие = banyak (orang)
+некоторый = beberapa, sebagian
+несколько = beberapa
+столько = sebanyak itu, sekian
+сколько = berapa
+много = banyak
+
+# --- Tanya, relatif, tak tentu, negatif ---
+кто = siapa
+что = apa
+какой = yang mana, seperti apa
+каков = bagaimana, seperti apa
+который = yang, yang mana
+чей = milik siapa
+никто = tidak seorang pun, tidak ada siapa-siapa
+ничто = tidak ada apa-apa, tidak satu pun
+никакой = tidak ada satu pun, sama sekali bukan
+ничей = bukan milik siapa pun
+некто = seseorang
+нечто = sesuatu
+некого = tidak ada orang untuk
+нечего = tidak ada apa-apa untuk
+кто-то = seseorang
+что-то = sesuatu
+какой-то = suatu, semacam
+чей-то = milik seseorang
+кто-нибудь = siapa saja, seseorang
+что-нибудь = apa saja, sesuatu
+какой-нибудь = apa saja, salah satu
+кое-кто = seseorang, beberapa orang
+кое-что = sesuatu, beberapa hal
+
+# --- Numeralia ---
+ноль = nol
+один = satu
+два = dua
+три = tiga
+четыре = empat
+пять = lima
+шесть = enam
+семь = tujuh
+восемь = delapan
+девять = sembilan
+десять = sepuluh
+одиннадцать = sebelas
+двенадцать = dua belas
+тринадцать = tiga belas
+четырнадцать = empat belas
+пятнадцать = lima belas
+шестнадцать = enam belas
+семнадцать = tujuh belas
+восемнадцать = delapan belas
+девятнадцать = sembilan belas
+двадцать = dua puluh
+тридцать = tiga puluh
+сорок = empat puluh
+пятьдесят = lima puluh
+шестьдесят = enam puluh
+семьдесят = tujuh puluh
+восемьдесят = delapan puluh
+девяносто = sembilan puluh
+сто = seratus
+двести = dua ratus
+триста = tiga ratus
+четыреста = empat ratus
+пятьсот = lima ratus
+шестьсот = enam ratus
+семьсот = tujuh ratus
+восемьсот = delapan ratus
+девятьсот = sembilan ratus
+тысяча = seribu
+миллион = sejuta, juta
+миллиард = miliar
+оба = keduanya, kedua
+двое = dua (orang), berdua
+трое = tiga (orang), bertiga
+четверо = empat (orang), berempat
+полтора = satu setengah

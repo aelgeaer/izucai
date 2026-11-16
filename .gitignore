@@ -1,0 +1,17 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.kotlin/
+
+# Sumber data unduhan & hasil antara (bisa dibuat ulang dengan data_pipeline/download_sources.py)
+data_pipeline/sources/
+data_pipeline/build/
+__pycache__/
+
+# Salinan hasil build_db.py (yang dipakai aplikasi ada di app/src/main/assets/)
+data_pipeline/russian_morphology.db
+build_log.txt
