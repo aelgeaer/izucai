@@ -9,7 +9,11 @@ Ketik kata dalam **bentuk apa pun** (`машинами`, `заказала`, `е
 
 ## Unduh & pasang
 
-**[⬇ Unduh APK — izucai-v1.0.apk (20 MB)](https://github.com/aelgeaer/izucai/raw/main/release/izucai-v1.0.apk)**
+**[⬇ Unduh APK — izucai-v1.1.apk (20 MB)](https://github.com/aelgeaer/izucai/raw/main/release/izucai-v1.1.apk)**
+
+Versi 1.1: homonim berejaan sama (mis. покупа́ть "membeli" / покупа́ть "memandikan sebentar") kini
+mendapat terjemahan masing-masing, arti yang umum tampil lebih dulu, dan ada keterangan homonim di atas hasil.
+Pasang di atas versi 1.0 tanpa perlu mencopotnya.
 
 1. Buka tautan di atas dari ponsel Android (Android 7.0 atau lebih baru).
 2. Buka berkas yang terunduh, lalu izinkan "pasang dari sumber ini" bila diminta.
@@ -48,14 +52,24 @@ suara bahasa Rusia di *Setelan → Text-to-speech* (bawaan pada kebanyakan ponse
 
 | | Jumlah |
 |---|---:|
-| Kata dasar (lema) | 23.354 |
-| — kata benda / kata kerja / kata sifat | 12.537 / 6.609 / 4.079 |
+| Kata dasar (lema) | 23.247 |
+| — kata benda / kata kerja / kata sifat | 12.469 / 6.581 / 4.068 |
 | — pronomina / numeralia | 77 / 52 |
-| Bentuk kata yang dikenali | 295.168 |
-| Lema berterjemahan Indonesia (kamus kurasi) | 3.354 |
+| Bentuk kata yang dikenali | 293.969 |
+| Lema berterjemahan Indonesia (kamus kurasi) | 3.247 |
 
 Lema di luar kamus kurasi tetap memiliki tabel perubahan lengkap; artinya ditampilkan dalam bahasa Inggris
-(label **EN**). Terjemahan Indonesia ditambah lewat berkas di `data_pipeline/translations/`.
+(label **EN**). Terjemahan Indonesia ditambah lewat berkas di `data_pipeline/translations/`:
+
+```
+машина = mobil, mesin                      # bentuk dasar
+за́мок = kastil, puri                       # tanda tekan membedakan homograf
+покупать [to buy] = membeli                # [kata kunci arti Inggris] membedakan homonim
+покупать [to bathe] = memandikan (sebentar)
+```
+
+Bila satu ejaan dimiliki beberapa lema dan baris kamus tidak memakai penanda arti, terjemahan hanya diberikan
+ke lema yang paling sering dipakai. Kata kunci dicocokkan dengan arti Wiktionary (`translations_en`).
 
 ## Struktur proyek
 
@@ -74,7 +88,7 @@ app/                      Aplikasi Android (Kotlin, Jetpack Compose, MVVM)
     ui/                   ViewModel, layar pencarian/bantuan/tentang, tabel paradigma
   src/test/               Unit test JVM (menguji SQL aplikasi terhadap .db asli lewat JDBC)
   src/androidTest/        Uji instrumentasi alur pencarian (Compose UI test)
-release/izucai-v1.0.apk   APK siap pasang
+release/izucai-v1.1.apk   APK siap pasang
 ```
 
 Skema SQLite: `lemmas` (kata dasar + `paradigm_json`), `word_forms` (indeks terbalik bentuk → lema,
@@ -91,7 +105,7 @@ python data_pipeline/build_db.py              # --extended N mengatur jumlah lem
 python data_pipeline/verify_db.py
 
 # 2. uji & bangun aplikasi
-./gradlew testDebugUnitTest                   # 20 unit test
+./gradlew testDebugUnitTest                   # 21 unit test
 ./gradlew assembleDebug assembleRelease       # APK di app/build/outputs/apk/{debug,release}/
 
 # 3. uji instrumentasi (perlu emulator/perangkat tersambung)

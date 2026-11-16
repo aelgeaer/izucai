@@ -154,6 +154,26 @@ class SearchScenariosTest {
         assertEquals(listOf("зака́зывать"), verb.partners)
     }
 
+    @Test
+    fun `покупать - dua homonim, masing-masing dengan terjemahannya sendiri`() {
+        val items = search("покупать").items.filter { it.lemma.lemmaClean == "покупать" }
+        assertEquals(2, items.size)
+        val buy = items[0]
+        val bathe = items[1]
+        assertEquals("impf", (buy.paradigm as VerbParadigm).aspect)
+        assertEquals("membeli", buy.lemma.translationsId)
+        assertEquals(listOf("купи́ть"), (buy.paradigm as VerbParadigm).partners)
+        assertEquals("pf", (bathe.paradigm as VerbParadigm).aspect)
+        assertFalse(bathe.lemma.translationsId.contains("membeli"))
+        assertTrue(bathe.lemma.translationsId.contains("memandikan"))
+        assertEquals(listOf("купа́ть"), (bathe.paradigm as VerbParadigm).partners)
+
+        // Pencarian Indonesia «membeli» tidak menampilkan arti "memandikan".
+        val membeli = search("membeli").items
+        assertTrue(membeli.any { it.lemma.id == buy.lemma.id })
+        assertFalse(membeli.any { it.lemma.id == bathe.lemma.id })
+    }
+
     // --------------------------------------------------------- Indonesia
 
     @Test

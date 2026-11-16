@@ -22,6 +22,7 @@ import sqlite3
 import sys
 import time
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -65,9 +66,27 @@ def log(msg: str) -> None:
 
 # ------------------------------------------------------------------ kamus kurasi
 
-def load_translations() -> dict[tuple[str, str], list[tuple[str | None, list[str], int]]]:
-    """{(grup berkas, lemma ternormalisasi): [(lemma bertanda tekan | None, terjemahan, urutan)]}"""
-    out: dict[tuple[str, str], list[tuple[str | None, list[str], int]]] = defaultdict(list)
+_SENSE_RE = re.compile(r"^(?P<lemma>[^\[]+?)\s*(?:\[(?P<sense>[^\]]+)\])?$")
+_ALT_FORM_PREFIXES = ("alternative form", "alternative spelling", "obsolete form", "dated form", "misspelling")
+
+
+@dataclass
+class CuratedEntry:
+    stressed: str | None   # lemma bertanda tekan bila ditulis (pembeda homograf за́мок / замо́к)
+    sense: str | None      # kata kunci arti bahasa Inggris (pembeda homonim: покупать [bathe])
+    translations: list[str]
+    order: int
+
+
+def load_translations() -> dict[tuple[str, str], list[CuratedEntry]]:
+    """{(grup berkas, lemma ternormalisasi): [CuratedEntry]}
+
+    Format baris:  лемма = terjemahan, ...
+                   лемма [kata kunci arti Inggris] = terjemahan, ...
+    Kata kunci arti memilih lema yang arti Wiktionary-nya (gloss_en) cocok, untuk ejaan yang
+    dimiliki beberapa kata berbeda: «покупать [buy] = membeli», «покупать [bathe] = memandikan».
+    """
+    out: dict[tuple[str, str], list[CuratedEntry]] = defaultdict(list)
     order = 0
     for path in sorted(TRANSLATIONS_DIR.glob("*.txt")):
         group = path.stem.split("_")[0]
@@ -79,21 +98,47 @@ def load_translations() -> dict[tuple[str, str], list[tuple[str | None, list[str
                 continue
             if " = " not in line:
                 raise SystemExit(f"{path.name}:{lineno}: format harus 'лемма = terjemahan'")
-            lemma, _, trans = line.partition(" = ")
-            lemma = lemma.strip()
+            head, _, trans = line.partition(" = ")
+            match = _SENSE_RE.match(head.strip())
+            if not match:
+                raise SystemExit(f"{path.name}:{lineno}: lemma tidak sah: {head!r}")
+            lemma = match["lemma"].strip()
+            sense = match["sense"].strip().lower() if match["sense"] else None
             translations = [t.strip() for t in trans.split(",") if t.strip()]
             stressed = lemma if "́" in lemma else None
             key = (group, normalize_search(lemma))
             for existing in out[key]:
-                if existing[0] == stressed:  # entri ganda -> gabungkan terjemahannya
-                    for t in translations:
-                        if t not in existing[1]:
-                            existing[1].append(t)
+                if existing.stressed == stressed and existing.sense == sense:  # entri ganda -> gabungkan
+                    existing.translations += [t for t in translations if t not in existing.translations]
                     break
             else:
                 order += 1
-                out[key].append((stressed, translations, order))
+                out[key].append(CuratedEntry(stressed, sense, translations, order))
     return out
+
+
+def pick_candidates(rows: list[tuple], entry: CuratedEntry) -> list[tuple]:
+    """Pilih lema yang menerima terjemahan kurasi.
+
+    rows: (id, lemma_stressed, gloss_en, score, is_name), urut skor menurun.
+    - nama diri (Ве́ра, А́вгуст) dan entri "alternative form of ..." disisihkan;
+    - dengan kata kunci arti: gloss sama persis > gloss diawali kata kunci > gloss memuat kata kunci;
+    - tanpa kata kunci: hanya lema yang paling sering dipakai. Homonim lain (покупа́ть СВ
+      "memandikan sebentar") tidak ikut mendapat terjemahan "membeli".
+    """
+    if entry.stressed:
+        rows = [r for r in rows if r[1] == entry.stressed]
+    common = [r for r in rows
+              if not r[4] and not r[1][:1].isupper() and not r[2].lower().startswith(_ALT_FORM_PREFIXES)]
+    rows = common or rows
+    if entry.sense:
+        glosses = [(r, r[2].lower()) for r in rows]
+        for test in (lambda g: g == entry.sense, lambda g: g.startswith(entry.sense), lambda g: entry.sense in g):
+            hit = [r for r, g in glosses if test(g)]
+            if hit:
+                return hit
+        return []
+    return rows[:1]
 
 
 # ------------------------------------------------------------- tahap 1: kandidat
@@ -397,23 +442,37 @@ def select_and_write(stage: sqlite3.Connection, translations, extended: int, min
     cand_translations: dict[int, tuple[list[str], int]] = {}
     missing: list[str] = []
     for (group, norm), items in translations.items():
-        for stressed, trans, order in items:
+        promote: list[int] = []  # lema arti utama (baris kurasi pertama) per ejaan
+        for entry in items:
+            trans, order = entry.translations, entry.order
             rows = []
             for pos in TRANSLATION_FILES[group]:
-                rows = stage.execute("SELECT id, lemma_stressed FROM cand WHERE norm=? AND pos=?", (norm, pos)).fetchall()
-                if stressed:
-                    rows = [r for r in rows if r[1] == stressed]
+                rows = stage.execute(
+                    "SELECT id, lemma_stressed, gloss_en, score, is_name FROM cand WHERE norm=? AND pos=? "
+                    "ORDER BY score DESC, id", (norm, pos)).fetchall()
+                rows = pick_candidates(rows, entry)
                 if rows:
                     break
             if not rows:
-                missing.append(f"{group}:{stressed or norm}")
+                missing.append(f"{group}:{entry.stressed or norm}" + (f" [{entry.sense}]" if entry.sense else ""))
                 continue
-            for cand_id, _ in rows:
+            if not promote and entry.sense:
+                promote = [r[0] for r in rows]
+            for cand_id, *_ in rows:
                 if cand_id in cand_translations:
                     merged = cand_translations[cand_id][0] + [t for t in trans if t not in cand_translations[cand_id][0]]
                     cand_translations[cand_id] = (merged, cand_translations[cand_id][1])
                 else:
                     cand_translations[cand_id] = (list(trans), order)
+        if promote:
+            # Homonim berejaan sama: arti yang ditulis pertama di kamus kurasi (arti umum) selalu
+            # tampil di atas arti lain, walau skor frekuensinya terbagi (му́сор "sampah" > "polisi").
+            ph = ",".join("?" * len(promote))
+            top = stage.execute(
+                f"SELECT MAX(score) FROM cand WHERE norm=? AND id NOT IN ({ph})", (norm, *promote)).fetchone()[0]
+            if top is not None:
+                stage.execute(
+                    f"UPDATE cand SET score = MAX(score, ? + 1) WHERE id IN ({ph})", (top, *promote))
 
     # --- pilih lema: kurasi + khusus + N tersering lainnya
     chosen: set[int] = set(cand_translations)

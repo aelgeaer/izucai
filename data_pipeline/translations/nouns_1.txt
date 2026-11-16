@@ -17,7 +17,8 @@
 отец = ayah, bapak
 мать = ibu
 мама = mama, ibu
-папа = papa, ayah
+папа [dad] = papa, ayah
+папа [pope] = Paus
 сын = putra, anak laki-laki
 дочь = putri, anak perempuan
 дочка = putri, anak perempuan
@@ -61,14 +62,16 @@
 жених = pengantin pria, tunangan pria
 невеста = pengantin wanita, tunangan wanita
 свадьба = pernikahan, pesta pernikahan
-брак = pernikahan, perkawinan
+брак [marriage] = pernikahan, perkawinan
+брак [defect] = cacat produksi, barang rusak
 любовь = cinta, kasih
 дружба = persahabatan
 имя = nama
 фамилия = nama keluarga, marga
 отчество = nama ayah (patronimik)
 возраст = umur, usia
-пол = lantai, jenis kelamin
+пол [floor] = lantai
+пол [sex] = jenis kelamin
 детство = masa kecil, masa kanak-kanak
 молодость = masa muda
 старость = masa tua
@@ -105,7 +108,8 @@
 инженер = insinyur
 строитель = pekerja bangunan, pembangun
 водитель = sopir, pengemudi
-шофёр = sopir
+шофёр [driver] = sopir
+шофёр [chauffeur] = sopir
 лётчик = pilot, penerbang
 пилот = pilot
 моряк = pelaut
@@ -190,7 +194,8 @@
 
 # --- Tubuh ---
 тело = tubuh, badan
-голова = kepala
+голова [head; mind] = kepala
+голова [head; chief] = kepala (pemimpin), wali kota (gaya lama)
 лицо = wajah, muka, orang
 глаз = mata
 ухо = telinga
@@ -212,7 +217,8 @@
 ладонь = telapak tangan
 палец = jari
 ноготь = kuku
-кулак = kepalan tangan, tinju
+кулак [fist] = kepalan tangan, tinju
+кулак [kulak] = kulak (petani kaya)
 локоть = siku
 нога = kaki
 колено = lutut
@@ -305,7 +311,8 @@
 зеркало = cermin
 ковёр = karpet, permadani
 лампа = lampu
-свет = cahaya, lampu, dunia
+свет [light] = cahaya, lampu
+свет [world] = dunia, kalangan atas
 свеча = lilin
 печь = tungku, kompor, oven
 плита = kompor, lempengan
@@ -346,11 +353,12 @@
 зонт = payung
 игрушка = mainan
 кукла = boneka
-мусор = sampah
+мусор [garbage] = sampah
+мусор [cop] = slang kasar untuk polisi
 пыль = debu
 грязь = lumpur, kotoran
 ремонт = perbaikan, renovasi
-адрес = alamat
+адрес [recipient] = alamat
 жильё = tempat tinggal, hunian
 общежитие = asrama
 гостиница = hotel, penginapan
@@ -362,7 +370,8 @@
 завтрак = sarapan
 обед = makan siang
 ужин = makan malam
-хлеб = roti
+хлеб [bread] = roti
+хлеб [grain] = biji-bijian, gandum, nafkah
 масло = mentega, minyak
 сыр = keju
 молоко = susu
@@ -394,7 +403,7 @@
 лук = bawang, busur
 чеснок = bawang putih
 перец = lada, merica, cabai
-соль = garam
+соль [salt] = garam
 сахар = gula
 мёд = madu
 мука́ = tepung
@@ -418,7 +427,7 @@
 напиток = minuman
 блюдо = hidangan, masakan, piring saji
 вкус = rasa, selera
-запах = bau, aroma
+запах [smell] = bau, aroma
 голод = lapar, kelaparan
 жажда = haus, dahaga
 аппетит = nafsu makan, selera makan
@@ -511,7 +520,8 @@
 вокзал = stasiun (kereta)
 станция = stasiun
 аэропорт = bandara, bandar udara
-порт = pelabuhan
+порт [port, harbor] = pelabuhan
+порт [port] = port (komputer)
 остановка = halte, pemberhentian
 метро = metro, kereta bawah tanah
 тюрьма = penjara
@@ -519,7 +529,8 @@
 стадион = stadion
 бассейн = kolam renang
 цирк = sirkus
-клуб = klub
+клуб [club] = klub
+клуб [cloud, puff] = kepulan (asap, debu)
 бар = bar
 место = tempat
 пространство = ruang
@@ -577,11 +588,12 @@
 
 # --- Alam ---
 природа = alam
-небо = langit
+небо [sky] = langit
+небо [palate] = langit-langit mulut
 солнце = matahari
 луна = bulan (benda langit)
 звезда = bintang
-воздух = udara
+воздух [air;] = udara
 ветер = angin
 дождь = hujan
 снег = salju
@@ -623,8 +635,9 @@
 дерево = pohon, kayu
 куст = semak
 трава = rumput
-цветок = bunga
-лист = daun, lembar
+цветок [flower] = bunga
+лист [leaf] = daun
+лист [sheet] = lembar, halaman
 ветка = ranting, dahan
 корень = akar
 ствол = batang pohon, laras
@@ -650,13 +663,15 @@
 медь = tembaga
 сталь = baja
 стекло = kaca
-уголь = batu bara, arang
+уголь [coal] = batu bara, arang
 нефть = minyak bumi
-газ = gas
+газ [gas;] = gas
+газ [gauze] = kain kasa
 энергия = energi
 электричество = listrik
-ток = arus (listrik)
-тень = bayangan, tempat teduh
+ток [current] = arus (listrik)
+тень [shade] = bayangan, tempat teduh
+тень [apparition] = hantu, arwah
 луч = sinar
 тьма = kegelapan
 темнота = kegelapan

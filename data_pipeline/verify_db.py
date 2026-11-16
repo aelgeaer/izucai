@@ -161,7 +161,21 @@ def main() -> int:
     check("makan: есть berada di urutan teratas (prioritas 0)", bool(rows) and rows[0]["priority"] == 0
           and "есть" in [r["lemma_clean"] for r in rows if r["priority"] == 0], str([(r["lemma_clean"], r["priority"]) for r in rows[:8]]))
 
-    print(f"\nRingkasan: {meta.get('lemma_count')} lema, {meta.get('form_count')} bentuk kata, "
+    print("Homonim berejaan sama: terjemahan per arti")
+    rows = db.execute("SELECT aspect, translations_id FROM lemmas WHERE lemma_clean='покупать' ORDER BY freq_rank").fetchall()
+    check("покупать: НСВ = membeli, СВ = memandikan (bukan membeli)",
+          len(rows) == 2 and rows[0][1] == "membeli" and "membeli" not in rows[1][1] and "memandikan" in rows[1][1],
+          str([tuple(r) for r in rows]))
+    rows = db.execute("SELECT translations_id FROM lemmas WHERE lemma_clean='мусор' ORDER BY freq_rank").fetchall()
+    check("мусор: arti utama (sampah) tampil pertama", bool(rows) and rows[0][0] == "sampah", str([r[0] for r in rows]))
+    dup = db.execute(
+        "SELECT lemma_clean, pos, translations_id FROM lemmas WHERE translations_id != '' "
+        "GROUP BY lemma_norm, pos, translations_id HAVING COUNT(*) > 1").fetchall()
+    allowed = {"двигать", "засыпать", "нарезать", "насыпать", "просыпаться", "разрезать", "цветок", "шофёр", "шофер"}
+    unexpected = [tuple(r) for r in dup if r[0] not in allowed]
+    check("tidak ada terjemahan yang tertempel ganda pada homonim", not unexpected, str(unexpected))
+
+    print(f"\nRingkasan:{meta.get('lemma_count')} lema, {meta.get('form_count')} bentuk kata, "
           f"{n_translated} berterjemahan Indonesia, berkas {DB.stat().st_size / 1e6:.1f} MB")
     if failures:
         print(f"{len(failures)} pemeriksaan GAGAL: " + "; ".join(failures))

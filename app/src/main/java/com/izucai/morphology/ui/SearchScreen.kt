@@ -314,6 +314,15 @@ private fun Results(
                     Modifier.padding(horizontal = 16.dp, vertical = 6.dp).testTag("result-count"),
                     fontSize = 14.sp, color = AppColors.TextMuted,
                 )
+                val homonyms = outcome.items.groupBy { it.lemma.lemmaClean to it.lemma.pos }.any { it.value.size > 1 }
+                if (homonyms) {
+                    Text(
+                        "Ada kata dengan ejaan sama tetapi arti berbeda (homonim). " +
+                            "Bedakan dari terjemahan, aspek, dan pasangan aspeknya.",
+                        Modifier.padding(horizontal = 16.dp).padding(bottom = 4.dp).testTag("homonym-note"),
+                        fontSize = 13.sp, color = AppColors.TextGray, lineHeight = 18.sp,
+                    )
+                }
             }
         }
         items(outcome.items, key = { it.lemma.id }) { item ->

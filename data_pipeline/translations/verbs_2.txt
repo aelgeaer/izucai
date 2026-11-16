@@ -25,9 +25,10 @@
 кинуть = melempar
 ловить = menangkap
 поймать = menangkap
-хватать = merenggut, mencengkeram, cukup
+хватать [to grasp] = merenggut, mencengkeram
+хватать [to suffice] = cukup
 схватить = merenggut, mencengkeram
-хватить = cukup, mencukupi
+хватить [to suffice] = cukup, mencukupi
 тянуть = menarik
 потянуть = menarik
 толкать = mendorong
@@ -46,9 +47,10 @@
 стучать = mengetuk
 постучать = mengetuk
 резать = memotong, mengiris
-разрезать = memotong, membelah
-нарезать = mengiris, memotong-motong
-рвать = merobek, memetik
+разрезать [to cut off] = memotong, membelah
+нарезать [to cut] = mengiris, memotong-motong
+рвать [to tear] = merobek, memetik
+рвать [to vomit] = muntah
 порвать = merobek, memutuskan
 ломать = mematahkan, merusak
 сломать = mematahkan, merusak
@@ -64,9 +66,9 @@
 разрушить = menghancurkan, merobohkan
 уничтожать = memusnahkan, menghancurkan
 уничтожить = memusnahkan, menghancurkan
-чинить = memperbaiki, mereparasi
+чинить [to repair] = memperbaiki, mereparasi
 починить = memperbaiki, mereparasi
-ремонтировать = merenovasi, memperbaiki
+ремонтировать [to repair] = merenovasi, memperbaiki
 отремонтировать = merenovasi, memperbaiki
 мыть = mencuci, membasuh
 помыть = mencuci, membasuh
@@ -74,7 +76,8 @@
 мыться = mandi, membasuh diri
 умываться = mencuci muka
 умыться = mencuci muka
-стирать = mencuci (pakaian), menghapus
+стирать [to erase] = menghapus
+стирать [to clean, to wash] = mencuci (pakaian)
 постирать = mencuci (pakaian)
 чистить = membersihkan, menyikat, mengupas
 почистить = membersihkan, menyikat, mengupas
@@ -104,7 +107,7 @@
 позавтракать = sarapan
 обедать = makan siang
 пообедать = makan siang
-ужинать = makan malam
+ужинать [to dine] = makan malam
 поужинать = makan malam
 курить = merokok
 наливать = menuangkan
@@ -121,7 +124,8 @@
 сгореть = terbakar habis
 жечь = membakar
 сжечь = membakar habis
-тушить = memadamkan
+тушить [to extinguish] = memadamkan
+тушить [to stew] = merebus, mengukus (memasak dengan api kecil)
 потушить = memadamkan
 гаснуть = padam
 погаснуть = padam
@@ -187,7 +191,8 @@
 помогать = membantu, menolong
 помочь = membantu, menolong
 мешать = mengganggu, menghalangi, mengaduk
-помешать = mengganggu, menghalangi, mengaduk
+помешать [to disturb] = mengganggu, menghalangi
+помешать [to stir] = mengaduk
 спасать = menyelamatkan
 спасти = menyelamatkan
 защищать = melindungi, membela
@@ -330,7 +335,8 @@
 отделять = memisahkan
 отделить = memisahkan
 складывать = melipat, menumpuk, menjumlahkan
-сложить = melipat, menumpuk, menjumlahkan
+сложить [to lay together] = melipat, menumpuk, menjumlahkan
+сложить [to compose] = menyusun, mengarang
 умножать = mengalikan, memperbanyak
 умножить = mengalikan, memperbanyak
 увеличивать = memperbesar, menambah, meningkatkan
@@ -435,7 +441,7 @@
 рассматривать = mengamati, menelaah, mempertimbangkan
 рассмотреть = mengamati, menelaah, mempertimbangkan
 наблюдать = mengamati
-следить = mengikuti, mengawasi
+следить [to watch] = mengikuti, mengawasi
 разглядывать = mengamati (dengan saksama)
 осматривать = memeriksa, meninjau
 осмотреть = memeriksa, meninjau
@@ -491,7 +497,8 @@
 кивать = mengangguk
 кивнуть = mengangguk
 кланяться = membungkuk (memberi hormat)
-поклониться = membungkuk (memberi hormat)
+поклониться [to bow] = membungkuk (memberi hormat)
+поклониться [to worship] = menyembah
 наклоняться = membungkuk, menunduk
 наклониться = membungkuk, menunduk
 опираться = bersandar, bertumpu
@@ -509,7 +516,7 @@
 нырять = menyelam
 нырнуть = menyelam
 купаться = mandi, berenang-renang
-искупаться = mandi, berenang-renang
+искупаться [to bathe] = mandi, berenang-renang
 загорать = berjemur
 загореть = menjadi cokelat (terbakar matahari)
 таять = mencair, meleleh
@@ -526,7 +533,7 @@
 темнеть = menjadi gelap
 светать = fajar menyingsing
 дождить = hujan
-пахать = membajak
+пахать [to plow] = membajak
 сеять = menabur, menanam benih
 посеять = menabur, menanam benih
 сажать = menanam, mendudukkan
@@ -574,10 +581,11 @@
 вставлять = memasukkan, menyisipkan
 вставить = memasukkan, menyisipkan
 сыпать = menaburkan, menuangkan (benda butiran)
-насыпать = menaburkan, menuangkan (benda butiran)
+насыпать [to strew] = menaburkan, menuangkan (benda butiran)
 капать = menetes
 капнуть = menetes
-брызгать = memercikkan
+брызгать [to sprinkle] = memercikkan, menyemprot
+брызгать [to splash] = memercikkan, menciprat
 мочить = membasahi
 намочить = membasahi
 сторожить = menjaga (berjaga)
@@ -597,7 +605,6 @@
 сделаться = menjadi
 годиться = cocok, layak
 пригодиться = berguna, terpakai
-хватать = cukup, merenggut
 везти = beruntung, mengangkut
 стоить = seharga, layak
 значить = berarti
