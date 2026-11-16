@@ -1,0 +1,3 @@
+# Kamus kurasi: PRONOMINA tambahan
+кто-либо = siapa pun, seseorang
+что-либо = apa pun, sesuatu

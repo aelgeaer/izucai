@@ -147,7 +147,7 @@
 доклад = laporan, makalah
 статья = artikel, pasal
 диссертация = disertasi
-диплом = ijazah, diploma
+диплом = ijazah, diploma, skripsi, tugas akhir
 степень = derajat, tingkat, gelar
 число = bilangan, angka, tanggal
 цифра = angka, digit

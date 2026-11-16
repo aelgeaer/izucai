@@ -114,7 +114,8 @@ fun AboutScreen(
         Section("Sumber data & lisensi") {
             Text(
                 "Tabel deklinasi dan konjugasi beserta tanda tekan: Wiktionary (en.wiktionary.org) melalui " +
-                    "ekstraksi Kaikki.org — lisensi CC BY-SA 4.0.\n" +
+                    "ekstraksi Kaikki.org — lisensi CC BY-SA 4.0. Kosakata modern yang belum ada di sana " +
+                    "(зачётка, пересдача, хакатон, …) dilengkapi dari ru.wiktionary.org (CC BY-SA 4.0).\n" +
                     "Urutan frekuensi kata: FrequencyWords (korpus OpenSubtitles 2018) — CC BY-SA 4.0.\n" +
                     "Terjemahan Indonesia: kamus kurasi aplikasi ini.",
                 fontSize = 14.sp, color = AppColors.TextGray, lineHeight = 20.sp,

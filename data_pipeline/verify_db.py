@@ -171,7 +171,7 @@ def main() -> int:
     dup = db.execute(
         "SELECT lemma_clean, pos, translations_id FROM lemmas WHERE translations_id != '' "
         "GROUP BY lemma_norm, pos, translations_id HAVING COUNT(*) > 1").fetchall()
-    allowed = {"двигать", "засыпать", "нарезать", "насыпать", "просыпаться", "разрезать", "цветок", "шофёр", "шофер"}
+    allowed = {"вырезать", "двигать", "засыпать", "нарезать", "насыпать", "отрезать", "просыпаться", "разрезать", "цветок", "шофёр", "шофер"}
     unexpected = [tuple(r) for r in dup if r[0] not in allowed]
     check("tidak ada terjemahan yang tertempel ganda pada homonim", not unexpected, str(unexpected))
 

@@ -28,11 +28,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import ruwikt  # noqa: E402
 import special_cases  # noqa: E402
 from kaikki_parser import Parsed, canonical_form, english_gloss, parse_entry  # noqa: E402
 from textnorm import ensure_stress, is_plain_cyrillic, is_pre_reform, lemma_clean, normalize_search, strip_stress  # noqa: E402
 
 KAIKKI_FILE = HERE / "sources" / "kaikki" / "kaikki-russian.jsonl.gz"
+RUWIKT_FILE = HERE / "sources" / "ruwiktionary" / "ruwiktionary-raw.jsonl.gz"
 FREQ_FILE = HERE / "sources" / "freq" / "ru_full.txt"
 TRANSLATIONS_DIR = HERE / "translations"
 STAGE_DB = HERE / "build" / "stage.db"
@@ -129,16 +131,18 @@ def pick_candidates(rows: list[tuple], entry: CuratedEntry) -> list[tuple]:
     if entry.stressed:
         rows = [r for r in rows if r[1] == entry.stressed]
     common = [r for r in rows
-              if not r[4] and not r[1][:1].isupper() and not r[2].lower().startswith(_ALT_FORM_PREFIXES)]
-    rows = common or rows
+              if not r[4] and not r[1][:1].isupper()
+              and not r[2].lower().startswith(_ALT_FORM_PREFIXES + ("alternative letter-case form",))]
     if entry.sense:
-        glosses = [(r, r[2].lower()) for r in rows]
-        for test in (lambda g: g == entry.sense, lambda g: g.startswith(entry.sense), lambda g: entry.sense in g):
-            hit = [r for r, g in glosses if test(g)]
-            if hit:
-                return hit
+        # Kata kunci arti dicocokkan dulu pada lema umum, lalu pada semua lema (mis. «the Lord» = Госпо́дь).
+        for pool in (common, rows):
+            glosses = [(r, r[2].lower()) for r in pool]
+            for test in (lambda g: g == entry.sense, lambda g: g.startswith(entry.sense), lambda g: entry.sense in g):
+                hit = [r for r, g in glosses if test(g)]
+                if hit:
+                    return hit
         return []
-    return rows[:1]
+    return (common or rows)[:1]
 
 
 # ------------------------------------------------------------- tahap 1: kandidat
@@ -534,7 +538,8 @@ def select_and_write(stage: sqlite3.Connection, translations, extended: int, min
         "form_count": n_forms,
         "translated_count": len(cand_translations),
         **{f"count_{pos}": n for pos, n in sorted(pos_counts.items())},
-        "sources": "Wiktionary via Kaikki.org (CC BY-SA 4.0); FrequencyWords/OpenSubtitles 2018 (CC BY-SA 4.0)",
+        "sources": "en.wiktionary & ru.wiktionary via Kaikki.org (CC BY-SA 4.0); "
+                   "FrequencyWords/OpenSubtitles 2018 (CC BY-SA 4.0)",
     }
     out.executemany("INSERT INTO meta VALUES (?,?)", [(k, str(v)) for k, v in summary.items()])
     out.executescript(FINAL_INDEXES)
@@ -543,6 +548,42 @@ def select_and_write(stage: sqlite3.Connection, translations, extended: int, min
     out.close()
     summary["missing"] = missing
     return summary
+
+
+def supplement_ruwikt(stage: sqlite3.Connection, translations) -> int:
+    """Tambahkan lema dari ru.wiktionary untuk kata kurasi yang belum punya kandidat."""
+    wanted: dict[str, set[str]] = defaultdict(set)
+    for (group, norm), _ in translations.items():
+        classes = [p for p in TRANSLATION_FILES[group] if p in ruwikt.RUWIKT_POS.values()]
+        ph = ",".join("?" * len(TRANSLATION_FILES[group]))
+        exists = stage.execute(f"SELECT 1 FROM cand WHERE norm=? AND pos IN ({ph}) LIMIT 1",
+                               (norm, *TRANSLATION_FILES[group])).fetchone()
+        if not exists and classes:
+            wanted[norm].add(classes[0])  # kelas kata utama berkas (nouns -> NOUN, adjectives -> ADJ)
+    if not wanted:
+        return 0
+    seen: set[tuple[str, str]] = set()
+
+    def consider(entry: dict, pos: str) -> bool:
+        norm = normalize_search(entry["word"])
+        if norm not in wanted or (norm, pos) in seen:
+            return False  # satu lema per kata & kelas kata (entri pertama ru.wiktionary)
+        try:
+            parsed = parse_entry(entry)
+        except Exception as exc:  # entri rusak dilewati
+            log(f"  ! ru.wiktionary {entry['word']!r}: {exc!r}")
+            return False
+        if parsed is None or not table_matches_lemma(parsed, norm):
+            return False
+        lemma_stressed, _ = canonical_form(entry)
+        lemma_stressed = ensure_stress(lemma_stressed)
+        seen.add((norm, pos))
+        insert_candidate(stage, norm, pos, lemma_stressed, parsed, "")
+        return True
+
+    added = ruwikt.supplement(RUWIKT_FILE, wanted, consider)
+    stage.commit()
+    return added
 
 
 def main() -> int:
@@ -568,6 +609,15 @@ def main() -> int:
         stage = build_stage()
         log("Menghitung frekuensi lema ...")
         compute_scores(stage)
+
+    if RUWIKT_FILE.exists():
+        log("Melengkapi kata kurasi dari Wiktionary bahasa Rusia ...")
+        added = supplement_ruwikt(stage, translations)
+        log(f"  {added} lema ditambahkan dari ru.wiktionary")
+        if added:
+            compute_scores(stage)
+    else:
+        log(f"! {RUWIKT_FILE.name} tidak ada -- kata yang hanya ada di ru.wiktionary dilewati")
 
     log("Menulis basis data akhir ...")
     summary = select_and_write(stage, translations, args.extended, args.min_score)

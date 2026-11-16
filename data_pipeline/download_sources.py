@@ -23,6 +23,11 @@ KAIKKI_FILE = SOURCES_DIR / "kaikki-russian.jsonl.gz"
 FREQ_URL = "https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/ru/ru_full.txt"
 FREQ_FILE = Path(__file__).resolve().parent / "sources" / "freq" / "ru_full.txt"
 
+# Ekstraksi Wiktionary bahasa Rusia (ru.wiktionary.org) — melengkapi kata modern/teknis yang belum ada
+# di Wiktionary bahasa Inggris (зачётка, пересдача, хакатон, фреймворк, ...). CC BY-SA 4.0.
+RUWIKT_URL = "https://kaikki.org/ruwiktionary/raw-wiktextract-data.jsonl.gz"
+RUWIKT_FILE = Path(__file__).resolve().parent / "sources" / "ruwiktionary" / "ruwiktionary-raw.jsonl.gz"
+
 
 def _fetch_range(url: str, tmp: Path, start: int) -> tuple[int, int]:
     """Unduh mulai dari byte `start` (melanjutkan file .part). Mengembalikan (terunduh, total)."""
@@ -74,6 +79,7 @@ def main() -> int:
     for url, dest, min_size in (
         (KAIKKI_URL, KAIKKI_FILE, 50_000_000),
         (FREQ_URL, FREQ_FILE, 10_000_000),
+        (RUWIKT_URL, RUWIKT_FILE, 200_000_000),
     ):
         if dest.exists() and dest.stat().st_size > min_size:
             print(f"Sudah ada: {dest} ({dest.stat().st_size / 1e6:.1f} MB)")

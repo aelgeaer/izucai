@@ -174,6 +174,26 @@ class SearchScenariosTest {
         assertFalse(membeli.any { it.lemma.id == bathe.lemma.id })
     }
 
+    @Test
+    fun `kosakata kampus ITMO - termasuk kata dari Wiktionary Rusia`() {
+        val zachetka = search("зачётками").item("зачётка", "NOUN")
+        assertEquals(setOf("ins.pl"), zachetka.highlightKeys)
+        assertEquals(listOf("зачёток"), (zachetka.paradigm as NounParadigm).rows.first { it.case == "gen" }.pl)
+        assertTrue(zachetka.lemma.translationsId.contains("buku nilai"))
+
+        val retake = search("пересдала").item("пересдать", "VERB")
+        assertEquals("pf", (retake.paradigm as VerbParadigm).aspect)
+        assertEquals(setOf("past.f"), retake.highlightKeys)
+
+        val notes = search("конспектирую").item("конспектировать", "VERB")
+        assertEquals("impf", (notes.paradigm as VerbParadigm).aspect)
+
+        assertEquals("стипендия", search("beasiswa").items.first().lemma.lemmaClean)
+        assertEquals("общежитие", search("asrama").items.first().lemma.lemmaClean)
+        assertEquals("ноутбук", search("laptop").items.first().lemma.lemmaClean)
+        assertTrue(search("skripsi").items.any { it.lemma.lemmaClean == "диплом" })
+    }
+
     // --------------------------------------------------------- Indonesia
 
     @Test
