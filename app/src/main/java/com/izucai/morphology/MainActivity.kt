@@ -1,6 +1,7 @@
 package com.izucai.morphology
 
 import android.graphics.Color as AndroidColor
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -29,6 +31,7 @@ import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,8 @@ import com.izucai.morphology.ui.IzucaiTheme
 import com.izucai.morphology.ui.SearchScreen
 import com.izucai.morphology.ui.SearchViewModel
 import com.izucai.morphology.ui.Speaker
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -66,7 +71,16 @@ class MainActivity : ComponentActivity() {
         speaker = Speaker(this)
         val versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
         setContent {
-            IzucaiTheme { App(viewModel, speaker, versionName) }
+            // Hanya memantau pilihan tema, supaya mengetik di kolom pencarian tidak merekomposisi akar aplikasi.
+            val themeMode by remember { viewModel.state.map { it.settings.themeMode }.distinctUntilChanged() }
+                .collectAsStateWithLifecycle(initialValue = viewModel.state.value.settings.themeMode)
+            val dark = themeMode.isDark(isSystemInDarkTheme())
+            IzucaiTheme(darkTheme = dark) {
+                // Latar jendela ikut tema supaya tidak ada kilatan putih saat papan ketik muncul/rotasi.
+                val windowBackground = AppColors.Background
+                SideEffect { window.setBackgroundDrawable(ColorDrawable(windowBackground.toArgb())) }
+                App(viewModel, speaker, versionName)
+            }
         }
     }
 
@@ -144,7 +158,7 @@ private fun App(viewModel: SearchViewModel, speaker: Speaker, versionName: Strin
                 }
             }
             SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(8.dp)) { data ->
-                Snackbar(data, containerColor = Color(0xFF323232), contentColor = Color.White)
+                Snackbar(data, containerColor = AppColors.SnackbarBackground, contentColor = AppColors.SnackbarText)
             }
         }
         // Ruang untuk papan ketik / bilah navigasi sistem.

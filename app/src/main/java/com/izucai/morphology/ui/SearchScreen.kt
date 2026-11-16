@@ -146,11 +146,11 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSubmit: 
 private fun SuggestionList(suggestions: List<Suggestion>, settings: DisplaySettings, onPick: (Suggestion) -> Unit) {
     Surface(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("suggestions"),
-        shape = RoundedCornerShape(6.dp), shadowElevation = 3.dp, color = Color.White,
+        shape = RoundedCornerShape(6.dp), shadowElevation = 3.dp, color = AppColors.Surface,
     ) {
         Column {
             suggestions.forEachIndexed { i, suggestion ->
-                if (i > 0) HorizontalDivider(color = Color(0xFFEEEEEE))
+                if (i > 0) HorizontalDivider(color = AppColors.Divider)
                 Row(
                     Modifier.fillMaxWidth().clickable { onPick(suggestion) }.padding(horizontal = 14.dp, vertical = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -224,7 +224,7 @@ private fun StartContent(
                         modifier = Modifier.clip(RoundedCornerShape(50)).clickable { onRemoveBookmark(bookmark) }.padding(8.dp),
                     )
                 }
-                HorizontalDivider(color = Color(0xFFE6E6E6))
+                HorizontalDivider(color = AppColors.Divider)
             }
             item { Spacer(Modifier.height(18.dp)) }
         }
@@ -327,7 +327,7 @@ private fun Results(
         }
         items(outcome.items, key = { it.lemma.id }) { item ->
             ResultCard(item, state.settings, item.lemma.id in bookmarked, onSearch, onToggleBookmark, onFormTap)
-            HorizontalDivider(Modifier.padding(top = 22.dp), thickness = 8.dp, color = Color(0xFFEDEDED))
+            HorizontalDivider(Modifier.padding(top = 22.dp), thickness = 8.dp, color = AppColors.Separator)
         }
     }
 }
@@ -446,7 +446,7 @@ private fun LanguageLine(code: String, text: String, color: Color, bold: Boolean
         Text(
             code,
             modifier = Modifier.padding(top = 3.dp).clip(RoundedCornerShape(3.dp)).background(color).padding(horizontal = 5.dp, vertical = 1.dp),
-            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White,
+            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppColors.OnAccent,
         )
         Spacer(Modifier.width(8.dp))
         Text(

@@ -1,6 +1,14 @@
 package com.izucai.morphology
 
+import android.content.Context
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
+import androidx.test.core.app.ApplicationProvider
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -115,6 +123,40 @@ class SearchFlowTest {
         rule.onNodeWithTag("tab:2").performClick()
         rule.onNodeWithTag("about-screen").assertIsDisplayed()
         rule.waitUntil(TIMEOUT_MS) { rule.onAllNodesWithText("Jumlah kata dasar (lema)").fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
+    fun themePicker_switchesRenderedColorsAndPersistsChoice() {
+        val prefs = ApplicationProvider.getApplicationContext<Context>()
+            .getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
+        /** Luminans piksel di tepi kiri layar (selalu warna latar tema, di luar kartu). */
+        fun backgroundLuminance(): Float {
+            val image = rule.onRoot().captureToImage()
+            return image.toPixelMap()[3, image.height / 2].luminance()
+        }
+
+        rule.onNodeWithTag("tab:2").performClick()
+        try {
+            rule.onNodeWithTag("theme:DARK").performClick()
+            rule.waitForIdle()
+            rule.onNodeWithTag("theme:DARK").assertIsSelected()
+            rule.onNodeWithTag("theme:LIGHT").assertIsNotSelected()
+            rule.onNodeWithTag("theme:SYSTEM").assertIsNotSelected()
+            check(prefs.getString("theme_mode", null) == "DARK")
+            check(backgroundLuminance() < 0.1f) { "latar harus gelap" }
+
+            rule.onNodeWithTag("theme:LIGHT").performClick()
+            rule.waitForIdle()
+            rule.onNodeWithTag("theme:LIGHT").assertIsSelected()
+            check(prefs.getString("theme_mode", null) == "LIGHT")
+            check(backgroundLuminance() > 0.8f) { "latar harus terang" }
+        } finally {
+            rule.onNodeWithTag("theme:SYSTEM").performClick()
+            rule.waitForIdle()
+        }
+        rule.onNodeWithTag("theme:SYSTEM").assertIsSelected()
+        check(prefs.getString("theme_mode", null) == "SYSTEM")
     }
 
     private companion object {

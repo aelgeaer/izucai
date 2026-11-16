@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -126,7 +125,7 @@ fun HelpScreen() {
         items(CASES) { case ->
             Column(
                 Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(RoundedCornerShape(8.dp))
-                    .background(Color.White).padding(12.dp),
+                    .background(AppColors.Surface).padding(12.dp),
             ) {
                 Row {
                     Text(case.abbr, Modifier.width(64.dp), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AppColors.Teal)
@@ -155,7 +154,7 @@ fun HelpScreen() {
                 }
                 Text(indonesian, fontSize = 15.sp, color = AppColors.TextGray, lineHeight = 20.sp)
             }
-            HorizontalDivider(color = Color(0xFFE6E6E6))
+            HorizontalDivider(color = AppColors.Divider)
         }
         item {
             Spacer(Modifier.height(14.dp))

@@ -1,7 +1,7 @@
 package com.izucai.morphology.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,13 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.izucai.morphology.data.DisplaySettings
 import com.izucai.morphology.data.StressStyle
+import com.izucai.morphology.data.ThemeMode
 
 /** Tab О ПРОГРАММЕ: informasi aplikasi, statistik basis data offline, dan pengaturan tampilan. */
 @Composable
@@ -55,22 +56,25 @@ fun AboutScreen(
         }
 
         Section("Pengaturan tampilan") {
+            Text("Tema", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = AppColors.TextDark)
+            for ((mode, label) in listOf(
+                ThemeMode.SYSTEM to "Sesuai sistem",
+                ThemeMode.LIGHT to "Terang",
+                ThemeMode.DARK to "Gelap",
+            )) {
+                RadioRow(settings.themeMode == mode, label, "theme:${mode.name}") {
+                    onSettingsChange(settings.copy(themeMode = mode))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
             Text("Tanda tekan (ударение)", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = AppColors.TextDark)
             for ((style, label) in listOf(
                 StressStyle.ACUTE to "Aksen di atas huruf — заказа́л",
                 StressStyle.APOSTROPHE to "Apostrof setelah vokal — заказа'л",
                 StressStyle.NONE to "Tanpa tanda tekan — заказал",
             )) {
-                Row(
-                    Modifier.fillMaxWidth().clickable { onSettingsChange(settings.copy(stressStyle = style)) }.testTag("stress:${style.name}"),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    RadioButton(
-                        selected = settings.stressStyle == style,
-                        onClick = { onSettingsChange(settings.copy(stressStyle = style)) },
-                        colors = RadioButtonDefaults.colors(selectedColor = AppColors.Teal),
-                    )
-                    Text(label, fontSize = 15.sp, color = AppColors.TextDark)
+                RadioRow(settings.stressStyle == style, label, "stress:${style.name}") {
+                    onSettingsChange(settings.copy(stressStyle = style))
                 }
             }
             Spacer(Modifier.height(4.dp))
@@ -78,7 +82,7 @@ fun AboutScreen(
                 Column(Modifier.weight(1f)) {
                     Text("Warnai akhiran kata", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = AppColors.TextDark)
                     Text(
-                        "Akar kata tetap hitam; bagian yang berubah (akhiran kasus/persona) diberi warna.",
+                        "Akar kata tetap berwarna biasa; bagian yang berubah (akhiran kasus/persona) diberi warna.",
                         fontSize = 13.sp, color = AppColors.TextGray, lineHeight = 18.sp,
                     )
                 }
@@ -86,7 +90,7 @@ fun AboutScreen(
                     checked = settings.highlightEndings,
                     onCheckedChange = { onSettingsChange(settings.copy(highlightEndings = it)) },
                     modifier = Modifier.testTag("toggle-endings"),
-                    colors = SwitchDefaults.colors(checkedTrackColor = AppColors.Teal),
+                    colors = SwitchDefaults.colors(checkedTrackColor = AppColors.Teal, uncheckedTrackColor = AppColors.Surface),
                 )
             }
         }
@@ -125,10 +129,27 @@ fun AboutScreen(
     }
 }
 
+/** Satu pilihan radio; seluruh baris bisa diketuk dan terbaca sebagai pilihan oleh pembaca layar. */
+@Composable
+private fun RadioRow(selected: Boolean, label: String, tag: String, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().selectable(selected = selected, onClick = onClick, role = Role.RadioButton).testTag(tag),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            modifier = Modifier.padding(12.dp),
+            colors = RadioButtonDefaults.colors(selectedColor = AppColors.Teal, unselectedColor = AppColors.TextGray),
+        )
+        Text(label, fontSize = 15.sp, color = AppColors.TextDark)
+    }
+}
+
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color.White).padding(14.dp),
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(AppColors.Surface).padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(title, Modifier.padding(bottom = 4.dp), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = AppColors.TextDark)

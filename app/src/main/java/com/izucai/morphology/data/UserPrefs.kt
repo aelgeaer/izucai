@@ -9,7 +9,25 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class Bookmark(val lemmaId: Long, val lemma: String, val translation: String)
 
+/** Pilihan tema: ikuti pengaturan sistem, atau paksa terang/gelap. */
+enum class ThemeMode {
+    SYSTEM, LIGHT, DARK;
+
+    /** @param systemDark apakah sistem sedang memakai mode gelap */
+    fun isDark(systemDark: Boolean): Boolean = when (this) {
+        SYSTEM -> systemDark
+        LIGHT -> false
+        DARK -> true
+    }
+
+    companion object {
+        /** Nama tersimpan yang tidak dikenal (data rusak / versi lama) jatuh ke [SYSTEM]. */
+        fun parse(name: String?): ThemeMode = entries.firstOrNull { it.name == name } ?: SYSTEM
+    }
+}
+
 data class DisplaySettings(
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val stressStyle: StressStyle = StressStyle.ACUTE,
     /** Warnai akhiran kata (bagian yang berubah) berbeda dari akar kata. */
     val highlightEndings: Boolean = true,
@@ -45,12 +63,14 @@ class UserPrefs(context: Context) {
     }
 
     fun settings() = DisplaySettings(
+        themeMode = ThemeMode.parse(prefs.getString(KEY_THEME, null)),
         stressStyle = runCatching { StressStyle.valueOf(prefs.getString(KEY_STRESS, null) ?: "") }
             .getOrDefault(StressStyle.ACUTE),
         highlightEndings = prefs.getBoolean(KEY_ENDINGS, true),
     )
 
     fun saveSettings(settings: DisplaySettings) = prefs.edit()
+        .putString(KEY_THEME, settings.themeMode.name)
         .putString(KEY_STRESS, settings.stressStyle.name)
         .putBoolean(KEY_ENDINGS, settings.highlightEndings)
         .apply()
@@ -61,6 +81,7 @@ class UserPrefs(context: Context) {
     private companion object {
         const val KEY_HISTORY = "history"
         const val KEY_BOOKMARKS = "bookmarks"
+        const val KEY_THEME = "theme_mode"
         const val KEY_STRESS = "stress_style"
         const val KEY_ENDINGS = "highlight_endings"
         const val MAX_HISTORY = 30

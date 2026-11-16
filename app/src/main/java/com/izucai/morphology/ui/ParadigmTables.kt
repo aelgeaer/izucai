@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -89,11 +90,17 @@ fun commonStem(forms: Iterable<String>): String {
 }
 
 /** Bentuk kata siap tampil: tanda tekan sesuai pengaturan, bentuk jarang (*), pewarnaan akhiran. */
-fun styledForm(form: String, settings: DisplaySettings, stem: String = ""): AnnotatedString = buildAnnotatedString {
+fun styledForm(
+    form: String,
+    settings: DisplaySettings,
+    stem: String = "",
+    rareColor: Color = LightPalette.rare,
+    endingColor: Color = LightPalette.ending,
+): AnnotatedString = buildAnnotatedString {
     val rare = form.startsWith("*")
     val body = TextNormalizer.displayStress(form.removePrefix("*"), settings.stressStyle)
     if (rare) {
-        withStyle(SpanStyle(color = AppColors.Rare, fontStyle = FontStyle.Italic)) { append("*"); append(body) }
+        withStyle(SpanStyle(color = rareColor, fontStyle = FontStyle.Italic)) { append("*"); append(body) }
         return@buildAnnotatedString
     }
     if (!settings.highlightEndings || stem.isEmpty() || !bare(form).startsWith(stem)) {
@@ -108,7 +115,7 @@ fun styledForm(form: String, settings: DisplaySettings, stem: String = ""): Anno
         letters++
     }
     append(body.substring(0, split))
-    withStyle(SpanStyle(color = AppColors.Ending)) { append(body.substring(split)) }
+    withStyle(SpanStyle(color = endingColor)) { append(body.substring(split)) }
 }
 
 /**
@@ -162,6 +169,8 @@ private fun Forms(
     inline: Boolean = false,
 ) {
     val table = LocalTable.current
+    val rareColor = AppColors.Rare
+    val endingColor = AppColors.Ending
     if (forms.isEmpty()) {
         Text("—", fontSize = fontSize, color = AppColors.TextDark)
         return
@@ -170,7 +179,7 @@ private fun Forms(
         // Varian sebaris dipisah koma: "е́в, е́вши" (tiap varian tetap bisa diketuk sendiri).
         Row {
             forms.forEachIndexed { i, form ->
-                val text = styledForm(form, table.settings, stem)
+                val text = styledForm(form, table.settings, stem, rareColor, endingColor)
                 Text(
                     text = if (i < forms.lastIndex) text + AnnotatedString(", ") else text,
                     fontSize = fontSize, color = AppColors.TextDark, softWrap = false,
@@ -182,7 +191,7 @@ private fun Forms(
     }
     Column(horizontalAlignment = horizontal) {
         forms.forEachIndexed { i, form ->
-            val text = styledForm(form, table.settings, stem)
+            val text = styledForm(form, table.settings, stem, rareColor, endingColor)
             Text(
                 text = if (slash && i < forms.lastIndex) text + AnnotatedString("/") else text,
                 fontSize = fontSize,
@@ -218,7 +227,8 @@ private fun HeaderLabel(text: String, modifier: Modifier = Modifier) {
 
 private class GridCell(
     val span: Int = 1,
-    val background: Color = Color.White,
+    /** [Color.Unspecified] = warna permukaan tema yang sedang aktif. */
+    val background: Color = Color.Unspecified,
     val alignment: Alignment = Alignment.CenterStart,
     val key: String? = null,
     val content: @Composable () -> Unit,
@@ -237,6 +247,7 @@ private class GridRows {
 @Composable
 private fun GridTable(widths: List<Dp>, rows: List<List<GridCell>>, modifier: Modifier = Modifier) {
     val highlightKeys = LocalTable.current.highlightKeys
+    val surface = AppColors.Surface
     ProvideTextStyle(LocalTextStyle.current.merge(GRID_STYLE)) {
     Column(modifier.horizontalScroll(rememberScrollState()).border(0.5.dp, AppColors.GridBorder)) {
         for (row in rows) {
@@ -250,7 +261,7 @@ private fun GridTable(widths: List<Dp>, rows: List<List<GridCell>>, modifier: Mo
                         Modifier
                             .width(width)
                             .fillMaxHeight()
-                            .background(if (highlighted) AppColors.Highlight else cell.background)
+                            .background(if (highlighted) AppColors.Highlight else cell.background.takeOrElse { surface })
                             .border(0.5.dp, AppColors.GridBorder)
                             .then(if (highlighted) Modifier.testTag("highlight:${cell.key}") else Modifier)
                             .padding(horizontal = CELL_PADDING, vertical = 3.dp),
@@ -265,7 +276,7 @@ private fun GridTable(widths: List<Dp>, rows: List<List<GridCell>>, modifier: Mo
 
 private fun textCell(
     text: String,
-    background: Color = Color.White,
+    background: Color = Color.Unspecified,
     bold: Boolean = false,
     span: Int = 1,
     alignment: Alignment = Alignment.CenterStart,
@@ -282,7 +293,7 @@ private fun formsCell(
     key: String?,
     info: String,
     stem: String = "",
-    background: Color = Color.White,
+    background: Color = Color.Unspecified,
     span: Int = 1,
     alignment: Alignment = Alignment.CenterStart,
     boldFirst: Boolean = false,
@@ -563,7 +574,7 @@ private fun FullVerbTables(table: FullVerbTable) {
             rows += listOf(textCell("Число:", header, bold = true)) +
                 List(4) { listOf("ед.", "мн.") }.flatten().map { textCell(it, header, bold = true, alignment = Alignment.Center) }
             table.persons.forEachIndexed { index, row ->
-                val background = if (index % 2 == 1) AppColors.RowAlt else Color.White
+                val background = if (index % 2 == 1) AppColors.RowAlt else Color.Unspecified
                 val person = row.label
                 rows += listOf(
                     textCell(person, header),

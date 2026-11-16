@@ -36,6 +36,12 @@ suara bahasa Rusia di *Setelan → Text-to-speech* (bawaan pada kebanyakan ponse
 |:--:|:--:|:--:|:--:|
 | ![машинами](docs/screenshots/kata-benda-mashinami.png) | ![есть](docs/screenshots/homonim-yest.png) | ![заказала](docs/screenshots/kata-kerja-zakazala.png) | ![новую](docs/screenshots/kata-sifat-novuyu.png) |
 
+Mode gelap:
+
+| Kata benda | Kata kerja | Pengaturan tema |
+|:--:|:--:|:--:|
+| ![mode gelap kata benda](docs/screenshots/mode-gelap-kata-benda.png) | ![mode gelap kata kerja](docs/screenshots/mode-gelap-kata-kerja.png) | ![mode gelap pengaturan](docs/screenshots/mode-gelap-pengaturan.png) |
+
 ## Fitur
 
 - **Pencarian dari bentuk apa pun** — `машинами` → `маши́на`, dengan keterangan "Ditemukan dari bentuk:
@@ -53,8 +59,11 @@ suara bahasa Rusia di *Setelan → Text-to-speech* (bawaan pada kebanyakan ponse
 - **Pelafalan offline** — ketuk bentuk kata mana pun untuk mendengarnya dan melihat keterangan gramatikalnya.
 - **Riwayat & kata tersimpan** (☆) untuk mengulang hafalan.
 - **Tab ПОМОЩЬ** — penjelasan 6 kasus beserta kata tanya dan contoh, serta arti semua singkatan tabel.
-- **Tab О ПРОГРАММЕ** — statistik basis data dan pengaturan: gaya tanda tekan (`заказа́л` / `заказа'л` /
+- **Tab О ПРОГРАММЕ** — statistik basis data dan pengaturan: **tema (sesuai sistem / terang / gelap)**,
+  gaya tanda tekan (`заказа́л` / `заказа'л` /
   tanpa tanda) dan pewarnaan akhiran kata.
+- **Mode gelap** — mengikuti pengaturan sistem secara otomatis, atau dipaksa terang/gelap dari tab
+  О ПРОГРАММЕ. Pilihan tersimpan di perangkat; kontras kedua tema diuji otomatis agar teks tetap terbaca.
 
 ## Isi basis data
 
@@ -114,7 +123,7 @@ python data_pipeline/build_db.py              # --extended N mengatur jumlah lem
 python data_pipeline/verify_db.py
 
 # 2. uji & bangun aplikasi
-./gradlew testDebugUnitTest                   # 22 unit test
+./gradlew testDebugUnitTest                   # 28 unit test
 ./gradlew assembleDebug assembleRelease       # APK di app/build/outputs/apk/{debug,release}/
 
 # 3. uji instrumentasi (perlu emulator/perangkat tersambung)
