@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from textnorm import clean_form, ensure_stress, is_pre_reform, lemma_clean
+from textnorm import clean_form, ensure_stress, is_pre_reform, lemma_clean, strip_stress
 
 CASE_KEYS = {
     "nominative": "nom",
@@ -78,11 +78,27 @@ def _add(cell: list[str], form: str) -> None:
         cell.append(form)
 
 
+def stress_key(form: str) -> str:
+    """Kunci perbandingan varian: tanpa "*" dan tanpa tanda tekan (ё tetap dibedakan dari е)."""
+    return strip_stress(form.lstrip("*")).lower()
+
+
 def tidy(cell: list[str]) -> list[str]:
-    """Varian baku lebih dulu; buang tanda "*" bila bentuk yang sama juga tercatat sebagai baku."""
-    plain = [f for f in cell if not f.startswith("*")]
-    rare = [f for f in cell if f.startswith("*") and f[1:] not in plain]
-    return plain + rare
+    """Rapikan satu sel tabel.
+
+    - varian baku lebih dulu, varian jarang ("*") sesudahnya;
+    - varian yang hanya beda tanda tekan (две́ри / двери́) cukup satu: yang dicantumkan lebih dulu oleh
+      Wiktionary, yaitu bentuk paling lazim; varian beda huruf (маши́ной / маши́ною) tetap dua.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for group in ([f for f in cell if not f.startswith("*")], [f for f in cell if f.startswith("*")]):
+        for form in group:
+            key = stress_key(form)
+            if key not in seen:
+                seen.add(key)
+                out.append(form)
+    return out
 
 
 def emit(cells: list[tuple[str, str, str]], key: str, forms: list[str], label: str) -> None:
@@ -278,11 +294,11 @@ def parse_adjective(entry: dict, *, stress_monosyllables: bool = True) -> Parsed
         paradigm["short"] = short
         for c in cols:
             emit(cells, f"short.{c}", short[c], f"Кратк. ф., {GENDER_LABELS[c]}")
-    comparative = head_forms(entry, "comparative")
+    comparative = tidy(head_forms(entry, "comparative"))
     if comparative:
         paradigm["comparative"] = comparative
         cells += [("comp", f, "Сравн. ст.") for f in comparative]
-    superlative = head_forms(entry, "superlative")
+    superlative = tidy(head_forms(entry, "superlative"))
     if superlative:
         paradigm["superlative"] = superlative
         cells += [("sup", f, "Превосх. ст.") for f in superlative]
@@ -413,6 +429,7 @@ def parse_verb(entry: dict) -> Parsed | None:
         for f in head_forms(entry, tag):
             if lemma_clean(f) != lemma_clean(lemma):
                 _add(partners, f)
+    partners = tidy(partners)
     if partners:
         paradigm["partners"] = partners[:6]
     return Parsed("verb", paradigm, cells, aspect=ASPECT_LABELS[aspect])

@@ -9,10 +9,14 @@ Ketik kata dalam **bentuk apa pun** (`машинами`, `заказала`, `е
 
 ## Unduh & pasang
 
-**[⬇ Unduh APK — izucai-v1.2.apk (22 MB)](https://github.com/aelgeaer/izucai/releases/latest)**
-(atau langsung: [release/izucai-v1.2.apk](https://github.com/aelgeaer/izucai/raw/main/release/izucai-v1.2.apk))
+**[⬇ Unduh APK — izucai-v1.3.apk (22 MB)](https://github.com/aelgeaer/izucai/releases/latest)**
+(atau langsung: [release/izucai-v1.3.apk](https://github.com/aelgeaer/izucai/raw/main/release/izucai-v1.3.apk))
 
-**Versi 1.2** — kosakata untuk mahasiswa Indonesia di ITMO, dari kurs persiapan bahasa hingga tahun ketiga:
+**Versi 1.3** — **mode gelap** (pilih Sesuai sistem / Terang / Gelap di tab О ПРОГРАММЕ) dan tabel yang lebih ringkas:
+bila sebuah sel berisi beberapa varian yang hanya beda tekanan (ударение), kini hanya bentuk yang paling lazim
+yang ditampilkan — mis. дверь Род. ед. «две́ри», bukan «две́ри / двери́». Varian yang dibuang tetap bisa dicari.
+
+Versi 1.2 — kosakata untuk mahasiswa Indonesia di ITMO, dari kurs persiapan bahasa hingga tahun ketiga:
 lema berterjemahan Indonesia naik dari 3.247 menjadi **5.827**. Mencakup administrasi kampus
 (деканат, сессия, зачёт, пересдача, зачётка, стипендия), pelajaran bahasa Rusia, IT & pemrograman,
 AI/data, keamanan informasi, matematika, fisika, optik & fotonika, elektronika, kimia/bioteknologi,
@@ -69,11 +73,11 @@ Mode gelap:
 
 | | Jumlah |
 |---|---:|
-| Kata dasar (lema) | 25.827 |
-| — kata benda / kata kerja / kata sifat | 13.975 / 7.188 / 4.534 |
+| Kata dasar (lema) | 25.826 |
+| — kata benda / kata kerja / kata sifat | 13.977 / 7.185 / 4.534 |
 | — pronomina / numeralia | 78 / 52 |
-| Bentuk kata yang dikenali | 325.351 |
-| Lema berterjemahan Indonesia (kamus kurasi) | 5.827 |
+| Bentuk kata yang dikenali | 322.198 |
+| Lema berterjemahan Indonesia (kamus kurasi) | 5.826 |
 
 Lema di luar kamus kurasi tetap memiliki tabel perubahan lengkap; artinya ditampilkan dalam bahasa Inggris
 (label **EN**). Terjemahan Indonesia ditambah lewat berkas di `data_pipeline/translations/`:
@@ -106,7 +110,7 @@ app/                      Aplikasi Android (Kotlin, Jetpack Compose, MVVM)
     ui/                   ViewModel, layar pencarian/bantuan/tentang, tabel paradigma
   src/test/               Unit test JVM (menguji SQL aplikasi terhadap .db asli lewat JDBC)
   src/androidTest/        Uji instrumentasi alur pencarian (Compose UI test)
-release/izucai-v1.2.apk   APK siap pasang
+release/izucai-v1.3.apk   APK siap pasang
 ```
 
 Skema SQLite: `lemmas` (kata dasar + `paradigm_json`), `word_forms` (indeks terbalik bentuk → lema,
@@ -123,7 +127,7 @@ python data_pipeline/build_db.py              # --extended N mengatur jumlah lem
 python data_pipeline/verify_db.py
 
 # 2. uji & bangun aplikasi
-./gradlew testDebugUnitTest                   # 28 unit test
+./gradlew testDebugUnitTest                   # 29 unit test
 ./gradlew assembleDebug assembleRelease       # APK di app/build/outputs/apk/{debug,release}/
 
 # 3. uji instrumentasi (perlu emulator/perangkat tersambung)

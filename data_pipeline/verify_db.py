@@ -43,6 +43,10 @@ def lookup_id(db: sqlite3.Connection, word: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def strip_key(form: str) -> str:
+    return form.lstrip("*").replace(S, "").lower()
+
+
 def find(rows, lemma: str, pos: str):
     return next((r for r in rows if r["lemma_clean"] == lemma and r["pos"] == pos), None)
 
@@ -160,6 +164,48 @@ def main() -> int:
     rows = lookup_id(db, "makan")
     check("makan: есть berada di urutan teratas (prioritas 0)", bool(rows) and rows[0]["priority"] == 0
           and "есть" in [r["lemma_clean"] for r in rows if r["priority"] == 0], str([(r["lemma_clean"], r["priority"]) for r in rows[:8]]))
+
+    print("Varian yang hanya beda tekanan")
+    def iter_cells(p):
+        kind = p["kind"]
+        if kind == "noun":
+            for r in p["rows"]:
+                yield r["sg"]; yield r["pl"]
+        elif kind == "adj":
+            for r in p["rows"]:
+                for c in ("m", "f", "n", "pl"):
+                    yield r[c]
+            yield from (p.get("short") or {}).values()
+            yield p.get("comparative", []); yield p.get("superlative", [])
+        elif kind == "simple":
+            for r in p["rows"]:
+                yield r["forms"]
+        else:
+            yield p["infinitive"]; yield p.get("partners", [])
+            for tense in ("present", "future"):
+                yield from (p.get(tense) or {}).values()
+            for group in ("past", "imperative", "participles"):
+                yield from p[group].values()
+    bad = []
+    for lemma, pj in db.execute("SELECT lemma_stressed, paradigm_json FROM lemmas"):
+        for cell in iter_cells(json.loads(pj)):
+            keys = [strip_key(f) for f in cell]
+            if len(keys) != len(set(keys)):
+                bad.append((lemma, cell))
+                break
+    check("tidak ada sel dengan varian yang hanya beda tekanan", not bad, f"{len(bad)} lema, mis. {bad[:3]}")
+    door = find(lookup_ru(db, "двери"), "дверь", "NOUN")
+    if door:
+        rows = {r["case"]: r for r in json.loads(door["paradigm_json"])["rows"]}
+        check("дверь: Род. ед. = satu bentuk (две́ри)", rows["gen"]["sg"] == [f"две{S}ри"], str(rows["gen"]["sg"]))
+        check("дверь: Дат. ед. = satu bentuk (две́ри)", rows["dat"]["sg"] == [f"две{S}ри"], str(rows["dat"]["sg"]))
+        check("дверь: Пред. ед. = satu bentuk (две́ри)", rows["prep"]["sg"] == [f"две{S}ри"], str(rows["prep"]["sg"]))
+        check("дверь: Тв. ед. = дверью (bukan beda tekanan)", rows["ins"]["sg"] == [f"две{S}рью"], str(rows["ins"]["sg"]))
+    check("двери (bentuk tanpa tanda tekan) tetap dikenali", door is not None)
+    check("двери́ (varian yang dibuang) tetap dikenali", find(lookup_ru(db, f"двери{S}"), "дверь", "NOUN") is not None)
+    check("маши́ной/маши́ною tetap dua (beda huruf)",
+          json.loads(find(lookup_ru(db, "машиной"), "машина", "NOUN")["paradigm_json"])["rows"][4]["sg"]
+          == [f"маши{S}ной", f"маши{S}ною"])
 
     print("Homonim berejaan sama: terjemahan per arti")
     rows = db.execute("SELECT aspect, translations_id FROM lemmas WHERE lemma_clean='покупать' ORDER BY freq_rank").fetchall()

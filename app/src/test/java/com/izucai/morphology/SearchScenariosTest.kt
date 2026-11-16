@@ -194,6 +194,45 @@ class SearchScenariosTest {
         assertTrue(search("skripsi").items.any { it.lemma.lemmaClean == "диплом" })
     }
 
+    @Test
+    fun `varian yang hanya beda tekanan hanya ditampilkan satu - bentuk paling lazim`() {
+        // дверь: Род./Дат./Пред. ед. dulu «две́ри / двери́»; kini hanya «две́ри».
+        val door = (search("дверь").item("дверь", "NOUN").paradigm as NounParadigm).rows.associateBy { it.case }
+        for (case in listOf("gen", "dat", "prep")) assertEquals(listOf("две́ри"), door.getValue(case).sg)
+        assertEquals(listOf("две́рью"), door.getValue("ins").sg)
+
+        // Varian yang dibuang tetap bisa dicari (dengan atau tanpa tanda tekan).
+        assertEquals("дверь", search("двери́").items.first().lemma.lemmaClean)
+        assertEquals("дверь", search("двери").items.first().lemma.lemmaClean)
+
+        // позвонить: «позвони́шь» saja, bukan «позво́нишь» juga.
+        val call = search("позвонить").item("позвонить", "VERB").paradigm as VerbParadigm
+        assertEquals(listOf("позвони́шь"), call.future!!.sg2)
+
+        // Varian beda huruf tetap dua: маши́ной / маши́ною.
+        val car = (search("машина").item("машина", "NOUN").paradigm as NounParadigm).rows.first { it.case == "ins" }
+        assertEquals(listOf("маши́ной", "маши́ною"), car.sg)
+
+        // Seluruh isi paradigma: tidak ada sel dengan dua varian yang sama setelah tanda tekan dibuang.
+        for (query in listOf("новый", "взять", "нужный", "деньги", "есть", "заказать", "я", "этот")) {
+            for (item in search(query).items) {
+                val cells: List<List<String>> = when (val p = item.paradigm) {
+                    is NounParadigm -> p.rows.flatMap { listOf(it.sg, it.pl) }
+                    is AdjectiveParadigm -> p.rows.flatMap { listOf(it.m, it.f, it.n, it.pl) } +
+                        listOfNotNull(p.short).flatMap { listOf(it.m, it.f, it.n, it.pl) } + listOf(p.comparative)
+                    is VerbParadigm -> listOfNotNull(p.present, p.future).flatMap {
+                        listOf(it.sg1, it.sg2, it.sg3, it.pl1, it.pl2, it.pl3)
+                    } + listOf(p.past.m, p.past.f, p.past.n, p.past.pl, p.imperative.sg, p.imperative.pl)
+                    is SimpleParadigm -> p.rows.map { it.forms }
+                }
+                for (cell in cells) {
+                    val keys = cell.map { it.removePrefix("*").replace("́", "") }
+                    assertEquals("«$query» → ${item.lemma.lemmaClean}: $cell", keys.distinct(), keys)
+                }
+            }
+        }
+    }
+
     // --------------------------------------------------------- Indonesia
 
     @Test
